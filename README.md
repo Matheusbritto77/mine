@@ -100,18 +100,25 @@ Para que os jogadores de computador e de celular consigam se conectar, você pre
 
 Para garantir que o servidor rode liso na sua VPS sem travamentos ou picos de CPU, siga estas otimizações recomendadas:
 
-### 1. Coletor de Lixo Avançado (Generational ZGC)
-Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) a variável `JVM_XX_OPTS: "-XX:+UseZGC -XX:+ZGenerational"` e desativamos as antigas flags do Aikar.
-*   **Por que o ZGC?**: O Generational ZGC é o coletor de lixo mais moderno do Java 21. Enquanto os coletores antigos travavam o servidor por 10 a 50ms para limpar a RAM, o ZGC realiza a limpeza concorrente em **menos de 1 milissegundo**. Isso garante que o servidor não sofra pequenos engasgos (micro-stuttering) durante o jogo.
-*   **Memória alocada**: O servidor está com 7GB de RAM alocados (`MEMORY: "7G"`), deixando 1GB livre na VPS para o Dokploy e sistema operacional.
+### 1. Coletor de Lixo e Otimização de RAM (Generational ZGC & Deduplication)
+Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) as variáveis de otimização de memória RAM:
+*   **Generational ZGC (`-XX:+UseZGC -XX:+ZGenerational`)**: Limpa a memória RAM em segundo plano com pausas menores que 1ms.
+*   **String Deduplication (`-XX:+UseStringDeduplication`)**: O Minecraft mantém milhões de textos repetidos na memória (nomes de blocos, coordenadas, logs de chat, UUIDs de entidades). Esta flag faz com que a máquina Java identifique strings duplicadas e aponte para um único endereço de memória, **liberando entre 15% e 25% de RAM**.
+*   **Teto do Metaspace (`-XX:MaxMetaspaceSize=300M`)**: Impede que a JVM acumule dados de classes de metadados infinitamente, economizando RAM da VPS.
+*   **Memória alocada**: Mantivemos 7GB de RAM alocados (`MEMORY: "7G"`), deixando 1GB livre na VPS de 8GB para o Dokploy e o sistema operacional.
 
-### 2. Otimização de Configurações da Engine (No-Tick Rendering)
-Os arquivos de configuração gerados após a primeira inicialização em `/data/config/paper-world-defaults.yml` (ou em `spigot.yml`) podem ser ajustados. Uma das técnicas mais avançadas é separar a distância física da distância visual (No-Tick Chunks):
+### 2. Otimização de Configurações da Engine (No-Tick Rendering & Chunk Unloading)
+Os arquivos de configuração gerados após a primeira inicialização em `/data/config/paper-world-defaults.yml` (ou em `spigot.yml`) podem ser ajustados. As duas técnicas mais avançadas para economizar RAM e CPU são:
 
+*   **Descarregamento Agressivo de Chunks (RAM)**:
+    *   No arquivo `paper-world-defaults.yml`, procure por `chunk-loading.unload-delay`.
+    *   O padrão é `600` ticks (o servidor segura o mapa na RAM por 30 segundos após o jogador sair da área).
+    *   Altere para **`20`** ou **`40`** ticks (1 a 2 segundos). Isso faz com que a memória seja liberada imediatamente assim que o jogador se afastar ou deslogar.
 *   **`view-distance` (Distância física/ticking)**: Defina para `4` ou `5`. Controla o raio de blocos onde as coisas acontecem (crescimento de plantações, movimentação de mobs).
-*   **`no-tick-view-distance` (Distância visual)**: Defina para `8` ou `10`. O jogador continuará vendo os blocos de longe (evitando que o horizonte fique muito cortado), mas as áreas distantes não processam lógica física. Isso poupa até 60% de CPU.
+*   **`no-tick-view-distance` (Distância visual)**: Defina para `8` ou `10`. O jogador continuará vendo os blocos de longe (evitando que o horizonte fique cortado), mas as áreas distantes não processam física. Isso poupa até 60% de CPU.
 *   **`simulation-distance`**: Defina para `4` ou `5`.
-*   **`entity-activation-range` (em spigot.yml)**: Reduza a ativação de entidades (mobs) para que eles fiquem "adormecidos" quando não houver jogadores muito próximos.
+*   **Limites de Entidades (Evitando Crash por Acúmulo)**:
+    *   Em `paper-world-defaults.yml`, reduza os limites de entidades por chunk (`entities` -> `limit`). Isso previne que farms gigantes de mobs acumulem milhares de animais e travem a RAM do servidor por estouro de memória (Out Of Memory).
 
 ### 3. Banco de Dados Separado no Dokploy (Evitando travamento de disco)
 Por padrão, plugins como **LuckPerms**, **EssentialsX** ou **CoreProtect** salvam suas informações em arquivos locais H2 ou SQLite (`.db`). Sempre que um jogador entra, compra algo ou quebra um bloco, o servidor bloqueia a thread de execução para escrever no disco da VPS, gerando picos de lag.
