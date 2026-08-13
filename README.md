@@ -1,10 +1,20 @@
-# Servidor Minecraft Bedrock (Pocket Edition - PE) para Celular e Consoles
+# Servidor Minecraft Crossplay (Java & Bedrock / PE) para Celular e PC
 
-Este repositório contém a configuração necessária para rodar e implantar um servidor dedicado de Minecraft Bedrock Edition (PE) usando Docker Compose. Ele foi estruturado para ser implantado facilmente em uma VPS através do **Dokploy** (ou qualquer PaaS baseado em Docker/Docker Compose).
+Este repositório contém a configuração necessária para rodar um servidor de Minecraft **Java Edition** utilizando **Paper MC**, configurado com **GeyserMC** e **Floodgate** para permitir que jogadores de **celular (Minecraft PE), consoles e PC** joguem juntos no mesmo mundo.
+
+Esta estrutura foi desenhada para ser implantada facilmente em uma VPS através do **Dokploy** (ou qualquer PaaS baseado em Docker/Docker Compose).
+
+---
+
+## 🛠️ Como Funciona esta Arquitetura?
+
+1.  **Paper MC**: O servidor core é um servidor Java super otimizado. Ele é o responsável por rodar o mundo física, lógica e suportar os tradicionais **Plugins Java (.jar)**.
+2.  **GeyserMC**: Um plugin de tradução instalado no Paper. Quando um jogador de celular/Bedrock tenta se conectar na porta `19132 UDP`, o Geyser traduz seus pacotes para a porta `25565 TCP` do Java.
+3.  **Floodgate**: Permite que jogadores de celular façam login e entrem no servidor Java usando apenas a sua conta da Xbox Live (celular), sem precisar possuir uma conta paga do Minecraft de computador (Java).
+
+---
 
 ## 🚀 Como Rodar Localmente (para Testes)
-
-Antes de implantar na sua VPS, você pode testar o servidor localmente na sua máquina:
 
 ### Pré-requisitos
 *   [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/install/) instalados.
@@ -14,71 +24,72 @@ Antes de implantar na sua VPS, você pode testar o servidor localmente na sua m�
     ```bash
     docker compose up -d
     ```
-2.  Para acompanhar os logs de inicialização e do servidor:
+    *Nota: Na primeira execução, o Docker irá baixar automaticamente o Paper MC, o GeyserMC e o Floodgate. Isso pode levar alguns minutos dependendo da sua conexão.*
+2.  Acompanhe a inicialização pelos logs:
     ```bash
     docker compose logs -f
     ```
-3.  Para parar o servidor:
+3.  Para desligar o servidor:
     ```bash
     docker compose down
     ```
 
 ---
 
-## ⚙️ Configuração Personalizada
+## 🔌 Como Instalar Plugins e Mods de Servidor
 
-Você pode personalizar o comportamento do servidor editando o bloco `environment` no arquivo [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml):
+Como o servidor é baseado no Paper MC, você pode customizar o jogo instalando plugins (como sistemas de login, economia, proteção de blocos, teleportes, VIPs, etc.):
 
-| Variável | Descrição | Valor Padrão |
+1.  Inicie o servidor pelo menos uma vez para que a estrutura de pastas seja criada.
+2.  Uma pasta chamada `data` será criada no diretório do projeto.
+3.  Baixe o arquivo `.jar` do plugin desejado (do SpigotMC, PaperMC ou Modrinth).
+4.  Coloque o arquivo `.jar` na pasta [`/data/plugins/`](file:///Users/matheusbritto/tuf/mine/data/plugins/).
+5.  Reinicie o servidor para carregar o plugin:
+    ```bash
+    docker compose up -d --force-recreate
+    ```
+
+---
+
+## ⚙️ Configurações do docker-compose.yml
+
+Você pode editar o bloco `environment` no arquivo [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml):
+
+| Variável | Descrição | Padrão |
 | :--- | :--- | :--- |
-| `SERVER_NAME` | Nome que aparecerá na aba "Servidores" no jogo | `Servidor Minecraft PE (Bedrock)` |
-| `GAMEMODE` | Modo de jogo padrão (`survival`, `creative`, `adventure`) | `survival` |
-| `DIFFICULTY` | Dificuldade (`peaceful`, `easy`, `normal`, `hard`) | `normal` |
-| `MAX_PLAYERS`| Limite máximo de jogadores simultâneos | `10` |
-| `ONLINE_MODE`| `true` exige login na Xbox Live. Mude para `false` para permitir piratas/offline | `true` |
-| `LEVEL_SEED` | Seed para geração do mundo (deixe vazio para aleatório) | *Vazio* |
-| `OPS` | Usernames (separados por vírgula) que receberão Admin automaticamente | *Vazio* |
-
-Após fazer qualquer alteração no `docker-compose.yml`, recrie o contêiner rodando:
-```bash
-docker compose up -d --force-recreate
-```
+| `MOTD` | Mensagem que aparece na lista de servidores | `Servidor Crossplay Java & PE` |
+| `DIFFICULTY` | Dificuldade do jogo (`peaceful`, `easy`, `normal`, `hard`) | `normal` |
+| `ONLINE_MODE`| `true` exige conta original para PC. Mude para `false` para permitir jogadores de PC pirata | `true` |
+| `OPS` | Usernames de jogadores Java que receberão administrador (separados por vírgula) | *Vazio* |
 
 ---
 
 ## ☁️ Implantação na VPS usando Dokploy
 
-O **Dokploy** suporta a implantação de aplicações que utilizam arquivos Docker Compose.
-
 ### Passo 1: Configurar no Dokploy
-1.  Acesse o painel do seu Dokploy.
-2.  Crie um novo **Projeto** e dentro dele crie um serviço do tipo **Compose**.
-3.  Configure a origem como seu repositório Git (onde este código está hospedado).
-4.  Certifique-se de preencher a URL do repositório, branch (ex: `main`) e credenciais de acesso se o repositório for privado.
+1.  Acesse o painel do seu **Dokploy**.
+2.  Crie um novo **Projeto** e, dentro dele, crie um serviço do tipo **Compose**.
+3.  Configure a origem do código apontando para a URL deste repositório Git (ex: no GitHub).
+4.  Defina a branch de deploy como `main`.
 
-### Passo 2: Configurar Redirecionamento de Portas e Firewall da VPS
-Diferente de aplicações web tradicionais que usam HTTP/HTTPS (TCP), o Minecraft Bedrock utiliza o protocolo **UDP** na porta **19132**.
+### Passo 2: Configurar o Firewall da VPS (CRÍTICO)
+Para que os jogadores de computador e de celular consigam se conectar, você precisa expor e liberar **duas portas diferentes** no firewall da sua VPS:
 
-1.  **Portas no Dokploy**: Como especificamos a porta diretamente no `docker-compose.yml` (`19132:19132/udp`), o contêiner se ligará diretamente à porta da VPS. Dokploy reconhece e aplica a configuração de rede do Docker Compose.
-2.  **Firewall da VPS (Muito Importante)**: Você precisará abrir a porta UDP `19132` no firewall da VPS para que os jogadores consigam se conectar.
-    *   Se estiver usando **UFW** (Ubuntu/Debian):
-        ```bash
-        sudo ufw allow 19132/udp
-        ```
-    *   Se estiver usando provedores de nuvem (AWS, Oracle Cloud, DigitalOcean, Azure, Google Cloud), lembre-se de liberar a porta **19132 UDP** no painel de controle (Security Groups / Networking / Firewall) do provedor.
+1.  **Minecraft Java (PC)**: Porta **25565 TCP**
+2.  **Minecraft Bedrock (Celular/PE/Consoles)**: Porta **19132 UDP**
 
-### Passo 3: Conectar no Celular / Console
-1.  Abra o Minecraft no seu celular ou console.
-2.  Vá em **Jogar** -> **Servidores** -> role até o fim e clique em **Adicionar Servidor**.
-3.  Preencha as informações:
-    *   **Nome do Servidor**: Qualquer nome de sua escolha.
-    *   **Endereço do Servidor**: O IP público da sua VPS.
-    *   **Porta**: `19132` (Padrão).
-4.  Clique em **Salvar** ou **Jogar**!
+*   Se estiver usando **UFW** no Ubuntu/Debian, execute na VPS:
+    ```bash
+    sudo ufw allow 25565/tcp
+    sudo ufw allow 19132/udp
+    ```
+*   Se estiver usando um provedor de nuvem (AWS, Oracle Cloud, DigitalOcean, Google Cloud), abra as portas **25565 TCP** e **19132 UDP** nas regras de rede/firewall (Security Groups) no console do provedor.
 
----
+### Passo 3: Como os jogadores se conectam
 
-## 📁 Estrutura do Repositório
-*   [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml): Configuração principal do contêiner Docker.
-*   [`.gitignore`](file:///Users/matheusbritto/tuf/mine/.gitignore): Ignora a pasta `data/`, garantindo que os mundos e configurações geradas em tempo de execução fiquem salvos apenas localmente/na VPS e não sejam commitados no Git.
-*   `/data/` (Gerado após rodar): Pasta local contendo mundos, logs e configurações persistentes do servidor.
+*   **Pelo PC (Java Edition)**:
+    *   **IP/Endereço**: IP da sua VPS
+    *   **Porta**: `25565` (Padrão)
+*   **Pelo Celular/Console (Bedrock/PE)**:
+    *   **IP/Endereço**: IP da sua VPS
+    *   **Porta**: `19132` (Padrão)

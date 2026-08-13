@@ -1,29 +1,33 @@
 services:
-  minecraft-bedrock:
-    image: itzg/minecraft-bedrock-server:latest
-    container_name: mc-pe-server
+  minecraft-java-crossplay:
+    image: itzg/minecraft-server:latest
+    container_name: mc-java-server
     restart: unless-stopped
     environment:
-      # Você precisa aceitar a EULA do Minecraft para rodar o servidor
+      # Você precisa aceitar a EULA do Minecraft Java para rodar o servidor
       EULA: "TRUE"
       
-      # Configurações do Servidor
-      SERVER_NAME: "Servidor Minecraft PE (Bedrock)"
-      GAMEMODE: "survival"
+      # Tipo de servidor (Paper é altamente otimizado e aceita plugins Java)
+      TYPE: "PAPER"
+      VERSION: "LATEST"
+      
+      # Nome do servidor e configurações de jogo
+      MOTD: "Servidor Crossplay Java & PE"
       DIFFICULTY: "normal"
-      MAX_PLAYERS: "10"
-      ONLINE_MODE: "true" # Altere para "false" se deseja permitir jogadores sem Xbox Live (offline)
+      OPS: "" # Adicione os usernames (Java) separados por vírgula para Admin (OP) automático
+      ONLINE_MODE: "true" # true = exige conta oficial para PC. Para pirata/offline, mude para false
       
-      # Permissões e Segurança
-      OPS: "" # Adicione os usernames separados por vírgula para dar Admin (OP) automático
-      
-      # Configurações do Mundo
-      LEVEL_NAME: "Mundo Bedrock"
-      LEVEL_SEED: "" # Deixe em branco para seed aleatória
+      # Downloads automáticos de Plugins (GeyserMC + Floodgate)
+      PLUGINS: |
+        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
+        https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
       
     ports:
-      # Minecraft Bedrock Edition utiliza o protocolo UDP na porta 19132
+      # Porta padrão para computadores (Minecraft Java - TCP)
+      - "25565:25565"
+      # Porta padrão para celulares e consoles (Minecraft Bedrock/PE - UDP)
       - "19132:19132/udp"
+      
     volumes:
-      # Persistência dos dados do mundo, logs, configurações de jogadores, etc.
+      # Persistência de dados do servidor (mundos, plugins, logs)
       - ./data:/data
