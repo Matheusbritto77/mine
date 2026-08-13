@@ -10,8 +10,11 @@ services:
       # Alocação de memória RAM para o Java (recomenda-se deixar 1GB livre na VPS para o SO e o Dokploy)
       MEMORY: "7G"
       
-      # Ativação das flags de otimização G1GC do Aikar (previne picos de lag por Garbage Collection)
-      USE_AIKAR_FLAGS: "true"
+      # Desativa as flags do Aikar (desenhadas para G1GC) para usarmos o ZGC de última geração
+      USE_AIKAR_FLAGS: "false"
+      
+      # Ativa o Generational ZGC (Coletor de Lixo do Java 21) - Reduz pausas do GC para < 1ms
+      JVM_XX_OPTS: "-XX:+UseZGC -XX:+ZGenerational"
       
       # Tipo de servidor (Purpur é focado em performance extrema e 100% compatível com plugins do Paper/Spigot)
       TYPE: "PURPUR"

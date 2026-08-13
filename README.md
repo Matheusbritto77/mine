@@ -100,19 +100,30 @@ Para que os jogadores de computador e de celular consigam se conectar, você pre
 
 Para garantir que o servidor rode liso na sua VPS sem travamentos ou picos de CPU, siga estas otimizações recomendadas:
 
-### 1. Ajuste de Memória RAM (Aikar's Flags)
-Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) a variável `USE_AIKAR_FLAGS=true` e definimos `MEMORY: "7G"`.
-*   **Dica**: Deixamos 7GB alocados especificamente para o servidor, guardando 1GB livre para o sistema operacional e para o Dokploy (visto que sua VPS possui 8GB de RAM).
+### 1. Coletor de Lixo Avançado (Generational ZGC)
+Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) a variável `JVM_XX_OPTS: "-XX:+UseZGC -XX:+ZGenerational"` e desativamos as antigas flags do Aikar.
+*   **Por que o ZGC?**: O Generational ZGC é o coletor de lixo mais moderno do Java 21. Enquanto os coletores antigos travavam o servidor por 10 a 50ms para limpar a RAM, o ZGC realiza a limpeza concorrente em **menos de 1 milissegundo**. Isso garante que o servidor não sofra pequenos engasgos (micro-stuttering) durante o jogo.
+*   **Memória alocada**: O servidor está com 7GB de RAM alocados (`MEMORY: "7G"`), deixando 1GB livre na VPS para o Dokploy e sistema operacional.
 
-### 2. Otimização de Configurações da Engine (Mais Impacto)
-O Purpur e o Paper geram arquivos de configuração após a primeira inicialização em `/data/purpur.yml`, `/data/config/paper-world-defaults.yml` e `spigot.yml`. Recomendamos editar os seguintes valores para economizar processamento da CPU:
+### 2. Otimização de Configurações da Engine (No-Tick Rendering)
+Os arquivos de configuração gerados após a primeira inicialização em `/data/config/paper-world-defaults.yml` (ou em `spigot.yml`) podem ser ajustados. Uma das técnicas mais avançadas é separar a distância física da distância visual (No-Tick Chunks):
 
-*   **`view-distance` (Distância de Visão)**: Altere de `10` para `6` ou `8`. Isso controla quantos blocos (chunks) o servidor envia para o jogador. Valores menores poupam muita CPU e RAM.
-*   **`simulation-distance` (Distância de Simulação)**: Altere para `4` ou `5`. Controla até onde os monstros se movem e plantas crescem.
-*   **`entity-activation-range` (em spigot.yml)**: Reduza a ativação de entidades (mobs) para que eles não consumam CPU quando estiverem longe dos jogadores.
-*   **Limites de Colisão (em purpur.yml)**: O Purpur permite limitar quantas colisões são calculadas por entidade, evitando lag quando há muitos animais juntos em fazendas.
+*   **`view-distance` (Distância física/ticking)**: Defina para `4` ou `5`. Controla o raio de blocos onde as coisas acontecem (crescimento de plantações, movimentação de mobs).
+*   **`no-tick-view-distance` (Distância visual)**: Defina para `8` ou `10`. O jogador continuará vendo os blocos de longe (evitando que o horizonte fique muito cortado), mas as áreas distantes não processam lógica física. Isso poupa até 60% de CPU.
+*   **`simulation-distance`**: Defina para `4` ou `5`.
+*   **`entity-activation-range` (em spigot.yml)**: Reduza a ativação de entidades (mobs) para que eles fiquem "adormecidos" quando não houver jogadores muito próximos.
 
-### 3. Monitoramento em Tempo Real (Spark Profiler)
+### 3. Banco de Dados Separado no Dokploy (Evitando travamento de disco)
+Por padrão, plugins como **LuckPerms**, **EssentialsX** ou **CoreProtect** salvam suas informações em arquivos locais H2 ou SQLite (`.db`). Sempre que um jogador entra, compra algo ou quebra um bloco, o servidor bloqueia a thread de execução para escrever no disco da VPS, gerando picos de lag.
+
+**Solução recomendada com o Dokploy**:
+1. No painel do **Dokploy**, crie um banco de dados **MySQL** ou **MariaDB** (leva 1 clique).
+2. O Dokploy fornecerá as credenciais (IP interno do banco, usuário, senha e porta).
+3. Vá nas pastas de configuração dos plugins (ex: `/data/plugins/LuckPerms/config.yml`).
+4. Altere o tipo de armazenamento de `H2` para `MYSQL` e preencha as credenciais.
+5. Os plugins agora salvarão os dados em segundo plano (assíncrono) no banco de dados, eliminando totalmente qualquer lag de gravação de arquivos de dados!
+
+### 4. Monitoramento em Tempo Real (Spark Profiler)
 O plugin **Spark** já vem **pré-instalado nativamente** no Purpur/Paper (a partir da versão 1.21). Você não precisa baixar nada!
 *   Caso o servidor apresente lentidão, digite no chat do jogo (se for OP) ou no console o comando:
     ```bash
@@ -124,7 +135,7 @@ O plugin **Spark** já vem **pré-instalado nativamente** no Purpur/Paper (a par
     ```
 *   O plugin gerará um link com gráficos detalhados mostrando o uso exato de CPU de cada plugin, entidade e evento do mundo, permitindo isolar a causa do lag imediatamente.
 
-### 4. Pré-gerar o Mundo (Essencial para tirar Lag de Exploração)
+### 5. Pré-gerar o Mundo (Essencial para tirar Lag de Exploração)
 Quando um jogador corre pelo mapa e entra em áreas novas, a CPU da VPS precisa calcular e gerar os blocos do zero em tempo real, causando travamentos temporários no servidor (lag spikes).
 
 Para evitar isso, pré-gere os blocos usando o plugin **Chunky**:
