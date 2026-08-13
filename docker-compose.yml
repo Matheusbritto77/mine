@@ -13,8 +13,8 @@ services:
       # Ativação das flags de otimização G1GC do Aikar (previne picos de lag por Garbage Collection)
       USE_AIKAR_FLAGS: "true"
       
-      # Tipo de servidor (Paper é altamente otimizado e aceita plugins Java)
-      TYPE: "PAPER"
+      # Tipo de servidor (Purpur é focado em performance extrema e 100% compatível com plugins do Paper/Spigot)
+      TYPE: "PURPUR"
       VERSION: "LATEST"
       
       # Nome do servidor e configurações de jogo

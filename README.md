@@ -1,6 +1,6 @@
 # Servidor Minecraft Crossplay (Java & Bedrock / PE) para Celular e PC
 
-Este repositório contém a configuração necessária para rodar um servidor de Minecraft **Java Edition** utilizando **Paper MC**, configurado com **GeyserMC** e **Floodgate** para permitir que jogadores de **celular (Minecraft PE), consoles e PC** joguem juntos no mesmo mundo.
+Este repositório contém a configuração necessária para rodar um servidor de Minecraft **Java Edition** utilizando **Purpur MC**, configurado com **GeyserMC** e **Floodgate** para permitir que jogadores de **celular (Minecraft PE), consoles e PC** joguem juntos no mesmo mundo.
 
 Esta estrutura foi desenhada para ser implantada facilmente em uma VPS através do **Dokploy** (ou qualquer PaaS baseado em Docker/Docker Compose).
 
@@ -8,8 +8,8 @@ Esta estrutura foi desenhada para ser implantada facilmente em uma VPS através 
 
 ## 🛠️ Como Funciona esta Arquitetura?
 
-1.  **Paper MC**: O servidor core é um servidor Java super otimizado. Ele é o responsável por rodar o mundo física, lógica e suportar os tradicionais **Plugins Java (.jar)**.
-2.  **GeyserMC**: Um plugin de tradução instalado no Paper. Quando um jogador de celular/Bedrock tenta se conectar na porta `19132 UDP`, o Geyser traduz seus pacotes para a porta `25565 TCP` do Java.
+1.  **Purpur MC**: O servidor core é um servidor Java focado em desempenho extremo e customização avançada. Ele é o responsável por rodar o mundo, física, lógica e suportar os tradicionais **Plugins Java (.jar)**. Ele é derivado do Paper, sendo ainda mais otimizado.
+2.  **GeyserMC**: Um plugin de tradução instalado no Purpur. Quando um jogador de celular/Bedrock tenta se conectar na porta `19132 UDP`, o Geyser traduz seus pacotes para a porta `25565 TCP` do Java.
 3.  **Floodgate**: Permite que jogadores de celular façam login e entrem no servidor Java usando apenas a sua conta da Xbox Live (celular), sem precisar possuir uma conta paga do Minecraft de computador (Java).
 
 ---
@@ -101,17 +101,30 @@ Para que os jogadores de computador e de celular consigam se conectar, você pre
 Para garantir que o servidor rode liso na sua VPS sem travamentos ou picos de CPU, siga estas otimizações recomendadas:
 
 ### 1. Ajuste de Memória RAM (Aikar's Flags)
-Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) a variável `USE_AIKAR_FLAGS=true` e definimos `MEMORY: "3G"`.
-*   **Dica**: Se sua VPS tiver mais RAM (ex: 8GB), altere o `MEMORY` para `7G` no `docker-compose.yml`. Mantenha sempre 1GB livre para o sistema operacional e para o Dokploy.
+Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) a variável `USE_AIKAR_FLAGS=true` e definimos `MEMORY: "7G"`.
+*   **Dica**: Deixamos 7GB alocados especificamente para o servidor, guardando 1GB livre para o sistema operacional e para o Dokploy (visto que sua VPS possui 8GB de RAM).
 
-### 2. Otimização de Configurações do Paper (Mais Impacto)
-O arquivo de configurações do mundo do Paper (gerado após a primeira inicialização em `/data/config/paper-world-defaults.yml` ou em `spigot.yml`) contém valores que afetam muito o desempenho. Recomendamos editar os seguintes valores:
+### 2. Otimização de Configurações da Engine (Mais Impacto)
+O Purpur e o Paper geram arquivos de configuração após a primeira inicialização em `/data/purpur.yml`, `/data/config/paper-world-defaults.yml` e `spigot.yml`. Recomendamos editar os seguintes valores para economizar processamento da CPU:
 
 *   **`view-distance` (Distância de Visão)**: Altere de `10` para `6` ou `8`. Isso controla quantos blocos (chunks) o servidor envia para o jogador. Valores menores poupam muita CPU e RAM.
 *   **`simulation-distance` (Distância de Simulação)**: Altere para `4` ou `5`. Controla até onde os monstros se movem e plantas crescem.
 *   **`entity-activation-range` (em spigot.yml)**: Reduza a ativação de entidades (mobs) para que eles não consumam CPU quando estiverem longe dos jogadores.
+*   **Limites de Colisão (em purpur.yml)**: O Purpur permite limitar quantas colisões são calculadas por entidade, evitando lag quando há muitos animais juntos em fazendas.
 
-### 3. Pré-gerar o Mundo (Essencial para tirar Lag de Exploração)
+### 3. Monitoramento em Tempo Real (Spark Profiler)
+O plugin **Spark** já vem **pré-instalado nativamente** no Purpur/Paper (a partir da versão 1.21). Você não precisa baixar nada!
+*   Caso o servidor apresente lentidão, digite no chat do jogo (se for OP) ou no console o comando:
+    ```bash
+    /spark profiler start
+    ```
+*   Deixe rodar por cerca de 2 a 3 minutos e execute:
+    ```bash
+    /spark profiler stop
+    ```
+*   O plugin gerará um link com gráficos detalhados mostrando o uso exato de CPU de cada plugin, entidade e evento do mundo, permitindo isolar a causa do lag imediatamente.
+
+### 4. Pré-gerar o Mundo (Essencial para tirar Lag de Exploração)
 Quando um jogador corre pelo mapa e entra em áreas novas, a CPU da VPS precisa calcular e gerar os blocos do zero em tempo real, causando travamentos temporários no servidor (lag spikes).
 
 Para evitar isso, pré-gere os blocos usando o plugin **Chunky**:
