@@ -1,0 +1,29 @@
+services:
+  minecraft-bedrock:
+    image: itzg/minecraft-bedrock-server:latest
+    container_name: mc-pe-server
+    restart: unless-stopped
+    environment:
+      # Você precisa aceitar a EULA do Minecraft para rodar o servidor
+      EULA: "TRUE"
+      
+      # Configurações do Servidor
+      SERVER_NAME: "Servidor Minecraft PE (Bedrock)"
+      GAMEMODE: "survival"
+      DIFFICULTY: "normal"
+      MAX_PLAYERS: "10"
+      ONLINE_MODE: "true" # Altere para "false" se deseja permitir jogadores sem Xbox Live (offline)
+      
+      # Permissões e Segurança
+      OPS: "" # Adicione os usernames separados por vírgula para dar Admin (OP) automático
+      
+      # Configurações do Mundo
+      LEVEL_NAME: "Mundo Bedrock"
+      LEVEL_SEED: "" # Deixe em branco para seed aleatória
+      
+    ports:
+      # Minecraft Bedrock Edition utiliza o protocolo UDP na porta 19132
+      - "19132:19132/udp"
+    volumes:
+      # Persistência dos dados do mundo, logs, configurações de jogadores, etc.
+      - ./data:/data
