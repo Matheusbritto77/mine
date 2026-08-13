@@ -100,12 +100,12 @@ Para que os jogadores de computador e de celular consigam se conectar, você pre
 
 Para garantir que o servidor rode liso na sua VPS sem travamentos ou picos de CPU, siga estas otimizações recomendadas:
 
-### 1. Coletor de Lixo e Otimização de RAM (Generational ZGC & Deduplication)
+### 1. Coletor de Lixo e Otimização de RAM (ZGC & Deduplication)
 Já ativamos no [`docker-compose.yml`](file:///Users/matheusbritto/tuf/mine/docker-compose.yml) as variáveis de otimização de memória RAM:
-*   **Generational ZGC (`-XX:+UseZGC -XX:+ZGenerational`)**: Limpa a memória RAM em segundo plano com pausas menores que 1ms.
+*   **ZGC (`-XX:+UseZGC`)**: Limpa a memória RAM em segundo plano com pausas menores que 1ms. No Java 25, o ZGC já é geracional (Generational ZGC) por padrão, por isso a antiga flag `-XX:+ZGenerational` foi descontinuada e removida.
 *   **String Deduplication (`-XX:+UseStringDeduplication`)**: O Minecraft mantém milhões de textos repetidos na memória (nomes de blocos, coordenadas, logs de chat, UUIDs de entidades). Esta flag faz com que a máquina Java identifique strings duplicadas e aponte para um único endereço de memória, **liberando entre 15% e 25% de RAM**.
 *   **Teto do Metaspace (`-XX:MaxMetaspaceSize=300M`)**: Impede que a JVM acumule dados de classes de metadados infinitamente, economizando RAM da VPS.
-*   **Memória alocada**: Mantivemos 7GB de RAM alocados (`MEMORY: "7G"`), deixando 1GB livre na VPS de 8GB para o Dokploy e o sistema operacional.
+*   **Memória alocada**: Mantivemos 6GB de RAM alocados (`MEMORY: "6G"`), deixando 2GB livres na VPS de 8GB para que o Dokploy, banco de dados e o sistema operacional possam rodar sem causar o erro de falta de memória física (`Failed to commit memory`).
 
 ### 2. Otimização de Configurações da Engine (No-Tick Rendering & Chunk Unloading)
 Os arquivos de configuração gerados após a primeira inicialização em `/data/config/paper-world-defaults.yml` (ou em `spigot.yml`) podem ser ajustados. As duas técnicas mais avançadas para economizar RAM e CPU são:
