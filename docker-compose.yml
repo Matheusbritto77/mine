@@ -7,6 +7,9 @@ services:
       # Você precisa aceitar a EULA do Minecraft Java para rodar o servidor
       EULA: "TRUE"
       
+      # Força o download limpo do executável do Purpur caso esteja corrompido
+      FORCE_REDOWNLOAD: "true"
+      
       # Alocação de memória RAM para o Java (recomenda-se deixar pelo menos 2GB livre na VPS para o SO e o Dokploy)
       MEMORY: "6G"
       
