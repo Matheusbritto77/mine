@@ -49,6 +49,35 @@ Como o servidor é baseado no Paper MC, você pode customizar o jogo instalando 
     docker compose up -d --force-recreate
     ```
 
+## 🔌 Plugins e Mods do Servidor
+
+O servidor está configurado para baixar automaticamente os plugins fundamentais do Modrinth no boot. A estrutura da economia corporativa do **Neon Syndicate** é viabilizada por:
+
+### Plugins Auto-instalados (Modrinth/Geyser API):
+1.  **`towny`**: Sistema de Megacorporações (Cidades). Permite que os jogadores criem empresas e contratem cidadãos.
+2.  **`vault`**: A API de economia do servidor. Conecta o dinheiro dos empregos com o saldo geral e o mercado.
+3.  **`essentialsx`**: Gerenciador essencial de economia base (`/bal`, `/pay`), teleporte (`/tpa`) e spawn do servidor.
+4.  **`luckperms`**: Sistema avançado de permissões para definir os cargos corporativos (VIP, CEO, Diretor, Freelancer) e as permissões de comandos de cada um.
+5.  **`fadah`**: (Finally a Decent Auction House) O Mercado Comunitário de Ações/Itens. Os jogadores digitam `/ah` para vender e comprar itens por dinheiro in-game ou saldo unificado.
+6.  **`chunky`**: Plugin de pré-geração de mapas (essencial para otimizar desempenho).
+7.  **`geysermc` & `floodgate`**: Crossplay para permitir jogadores de celular (Bedrock) jogarem com conta Xbox Live sem precisar de conta de PC (Java).
+
+---
+
+## 💼 Como Instalar o Sistema de Empregos (Jobs Reborn)
+
+Como o **Jobs Reborn** (plugin de profissões) não é hospedado no Modrinth (apenas no SpigotMC), você precisará instalá-lo manualmente na primeira inicialização seguindo estes passos:
+
+1.  **Baixe os arquivos `.jar`** oficiais:
+    *   [Jobs Reborn no SpigotMC](https://www.spigotmc.org/resources/jobs-reborn.4216/)
+    *   [CMILib (Biblioteca obrigatória para o Jobs)](https://www.spigotmc.org/resources/cmilib.87610/)
+2.  Coloque ambos os arquivos `.jar` baixados diretamente na pasta [`/data/plugins/`](file:///Users/matheusbritto/tuf/mine/data/plugins/) na sua VPS.
+3.  Reinicie o servidor no Dokploy ou executando:
+    ```bash
+    docker compose up -d --force-recreate
+    ```
+4.  O plugin criará a pasta `/data/plugins/Jobs/`. Você poderá editar o arquivo `jobsConfig.yml` para traduzir e mudar os salários in-game!
+
 ---
 
 ## ⚙️ Configurações do docker-compose.yml
