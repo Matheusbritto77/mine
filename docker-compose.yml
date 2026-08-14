@@ -38,15 +38,15 @@ services:
       
       # Downloads automáticos de Plugins do Modrinth
       # Economia & Cidades: towny, luckperms, fadah
-      # Construção & Mundo: fastasyncworldedit, terra, chunky
+      # Construção & Mundo: fastasyncworldedit, chunky
       # Gameplay & Imersão: decentholograms, traincarts, bkcommonlib, beautyquests
+      # Nota: Terra removido (sem build para 1.21.4, apenas 1.21.6+)
       MODRINTH_PROJECTS: |
         paper:towny
         luckperms
         paper:fadah
         chunky
         paper:fastasyncworldedit
-        paper:terra::beta
         paper:decentholograms
         paper:traincarts
         paper:bkcommonlib
