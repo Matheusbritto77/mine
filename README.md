@@ -76,10 +76,11 @@ O servidor está configurado para baixar automaticamente a maioria dos plugins n
 | **`traincarts`** + **`bkcommonlib`** | Metrôs e trens automáticos entre corporações | Sinais de controle |
 | **`beautyquests`** | Contratos e Missões via NPCs | `/quests create` |
 
-### 🌐 Crossplay (Auto-instalados)
+### 🌐 Crossplay & Compatibilidade de Versões (Auto-instalados)
 | Plugin | Função |
 | :--- | :--- |
 | **`geysermc`** + **`floodgate`** | Jogadores de celular (Bedrock) jogam com conta Xbox Live |
+| **`viaversion`** + **`viabackwards`** | Permite que clientes de versões mais recentes (ex: 26.x) e antigas conectem sem erros de protocolo |
 
 ---
 

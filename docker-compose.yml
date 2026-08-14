@@ -41,6 +41,7 @@ services:
       # Economia & Cidades: towny, luckperms, fadah
       # Construção & Mundo: fastasyncworldedit, chunky
       # Gameplay & Imersão: decentholograms, traincarts, bkcommonlib, beautyquests
+      # Versões & Compatibilidade: viaversion, viabackwards
       MODRINTH_PROJECTS: |
         paper:towny
         luckperms
@@ -51,6 +52,8 @@ services:
         paper:traincarts
         paper:bkcommonlib
         paper:beautyquests
+        paper:viaversion
+        paper:viabackwards
       
     ports:
       # Porta padrão para computadores (Minecraft Java - TCP)
