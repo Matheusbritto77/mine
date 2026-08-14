@@ -21,7 +21,7 @@ services:
       
       # Tipo de servidor (Purpur é focado em performance extrema e 100% compatível com plugins do Paper/Spigot)
       TYPE: "PURPUR"
-      VERSION: "LATEST"
+      VERSION: "1.21.1"
       
       # Nome do servidor e configurações de jogo
       MOTD: "Servidor Crossplay Java & PE"
