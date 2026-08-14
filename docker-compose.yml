@@ -46,7 +46,7 @@ services:
         paper:fadah
         chunky
         paper:fastasyncworldedit
-        paper:terra
+        paper:terra::beta
         paper:decentholograms
         paper:traincarts
         paper:bkcommonlib
