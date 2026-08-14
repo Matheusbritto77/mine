@@ -49,34 +49,59 @@ Como o servidor é baseado no Paper MC, você pode customizar o jogo instalando 
     docker compose up -d --force-recreate
     ```
 
-## 🔌 Plugins e Mods do Servidor
+## 🔌 Plugins do Neon Syndicate
 
-O servidor está configurado para baixar automaticamente os plugins fundamentais do Modrinth no boot. A estrutura da economia corporativa do **Neon Syndicate** é viabilizada por:
+O servidor está configurado para baixar automaticamente a maioria dos plugins no boot. A infraestrutura completa do **Neon Syndicate** é dividida em camadas:
 
-### Plugins Auto-instalados (Modrinth/Geyser API):
-1.  **`towny`**: Sistema de Megacorporações (Cidades). Permite que os jogadores criem empresas e contratem cidadãos.
-2.  **`vault`**: A API de economia do servidor. Conecta o dinheiro dos empregos com o saldo geral e o mercado.
-3.  **`essentialsx`**: Gerenciador essencial de economia base (`/bal`, `/pay`), teleporte (`/tpa`) e spawn do servidor.
-4.  **`luckperms`**: Sistema avançado de permissões para definir os cargos corporativos (VIP, CEO, Diretor, Freelancer) e as permissões de comandos de cada um.
-5.  **`fadah`**: (Finally a Decent Auction House) O Mercado Comunitário de Ações/Itens. Os jogadores digitam `/ah` para vender e comprar itens por dinheiro in-game ou saldo unificado.
-6.  **`chunky`**: Plugin de pré-geração de mapas (essencial para otimizar desempenho).
-7.  **`geysermc` & `floodgate`**: Crossplay para permitir jogadores de celular (Bedrock) jogarem com conta Xbox Live sem precisar de conta de PC (Java).
+### 🏦 Economia & Corporações (Auto-instalados)
+| Plugin | Função | Comando Principal |
+| :--- | :--- | :--- |
+| **`vault`** | API de economia unificada do servidor | — |
+| **`essentialsx`** | Economia base, teleporte, spawn | `/bal`, `/pay`, `/tpa` |
+| **`towny`** | Megacorporações (Cidades) e proteção de blocos | `/t new`, `/t invite` |
+| **`luckperms`** | Cargos corporativos (CEO, Diretor, Freelancer) | `/lp user`, `/lp group` |
+| **`fadah`** | Mercado de Ações e Leilões | `/ah` |
+
+### 🏗️ Construção & Geração de Mundo (Auto-instalados)
+| Plugin | Função | Comando Principal |
+| :--- | :--- | :--- |
+| **`fastasyncworldedit`** | Editor de mundo assíncrono (importar schematics de cidades cyberpunk) | `//paste`, `//schematic` |
+| **`terra`** | Gerador de mundo customizado (terreno industrial/urbano) | Configurável via YAML |
+| **`chunky`** | Pré-geração de mapa (otimização de desempenho) | `/chunky start` |
+
+### 🎭 Gameplay & Imersão (Auto-instalados)
+| Plugin | Função | Comando Principal |
+| :--- | :--- | :--- |
+| **`decentholograms`** | Hologramas neon flutuantes (propagandas, rankings) | `/dh create` |
+| **`traincarts`** + **`bkcommonlib`** | Metrôs e trens automáticos entre corporações | Sinais de controle |
+| **`beautyquests`** | Contratos e Missões via NPCs | `/quests create` |
+
+### 🌐 Crossplay (Auto-instalados)
+| Plugin | Função |
+| :--- | :--- |
+| **`geysermc`** + **`floodgate`** | Jogadores de celular (Bedrock) jogam com conta Xbox Live |
 
 ---
 
-## 💼 Como Instalar o Sistema de Empregos (Jobs Reborn)
+## 💼 Plugins de Instalação Manual
 
-Como o **Jobs Reborn** (plugin de profissões) não é hospedado no Modrinth (apenas no SpigotMC), você precisará instalá-lo manualmente na primeira inicialização seguindo estes passos:
+Os seguintes plugins **não estão no Modrinth** e precisam ser baixados e colocados manualmente na pasta `/data/plugins/` na VPS:
 
-1.  **Baixe os arquivos `.jar`** oficiais:
-    *   [Jobs Reborn no SpigotMC](https://www.spigotmc.org/resources/jobs-reborn.4216/)
-    *   [CMILib (Biblioteca obrigatória para o Jobs)](https://www.spigotmc.org/resources/cmilib.87610/)
-2.  Coloque ambos os arquivos `.jar` baixados diretamente na pasta [`/data/plugins/`](file:///Users/matheusbritto/tuf/mine/data/plugins/) na sua VPS.
-3.  Reinicie o servidor no Dokploy ou executando:
-    ```bash
-    docker compose up -d --force-recreate
-    ```
-4.  O plugin criará a pasta `/data/plugins/Jobs/`. Você poderá editar o arquivo `jobsConfig.yml` para traduzir e mudar os salários in-game!
+### 1. Jobs Reborn (Sistema de Profissões)
+*   [Jobs Reborn no SpigotMC](https://www.spigotmc.org/resources/jobs-reborn.4216/)
+*   [CMILib (Biblioteca obrigatória)](https://www.spigotmc.org/resources/cmilib.87610/)
+
+### 2. Citizens2 (NPCs Executivos e Mercadores)
+Permite criar NPCs com skins customizadas de executivos de corporações, ciborgues e mercadores.
+*   [Citizens no SpigotMC](https://www.spigotmc.org/resources/citizens.13811/)
+*   [Builds de desenvolvimento (CI)](https://ci.citizensnpcs.co/job/Citizens2/)
+
+### 3. ItemsAdder ou Oraxen (Itens Customizados, Implantes e Cosméticos 3D)
+Permite criar implantes cibernéticos, armas laser, jetpacks, keycards e cosméticos neon **sem que o jogador precise instalar mods** — o servidor envia um Resource Pack automaticamente.
+*   **ItemsAdder** (premium): [SpigotMC](https://www.spigotmc.org/resources/itemsadder.73355/)
+*   **Oraxen** (premium): [SpigotMC](https://www.spigotmc.org/resources/oraxen.72448/)
+
+> **Nota:** Após baixar qualquer `.jar`, coloque-o em `/data/plugins/` e reinicie com `docker compose up -d --force-recreate`.
 
 ---
 
