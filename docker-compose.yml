@@ -21,7 +21,7 @@ services:
       
       # Tipo de servidor (Purpur é focado em performance extrema e 100% compatível com plugins do Paper/Spigot)
       TYPE: "PURPUR"
-      VERSION: "1.21.1"
+      VERSION: "1.21.4"
       
       # Nome do servidor e configurações de jogo
       MOTD: "Servidor Crossplay Java & PE"
@@ -29,14 +29,15 @@ services:
       OPS: "" # Adicione os usernames (Java) separados por vírgula para Admin (OP) automático
       ONLINE_MODE: "true" # true = exige conta oficial para PC. Para pirata/offline, mude para false
       
-      # Downloads automáticos de Plugins (GeyserMC + Floodgate + Vault)
+      # Downloads automáticos de Plugins (GeyserMC + Floodgate + Vault + EssentialsX)
       PLUGINS: |
         https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
         https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
         https://github.com/MilkBowl/Vault/releases/download/1.7.3/Vault.jar
+        https://cdn.modrinth.com/data/hXiIvTyT/versions/SKQwLLoQ/EssentialsX-2.21.0.jar
       
-      # Downloads automáticos de Plugins do Modrinth (Towny, EssentialsX, LuckPerms, Ah Market, Chunky)
-      MODRINTH_PROJECTS: "paper:towny, paper:essentialsx, luckperms, paper:fadah, chunky"
+      # Downloads automáticos de Plugins do Modrinth (Towny, LuckPerms, Ah Market, Chunky)
+      MODRINTH_PROJECTS: "paper:towny, luckperms, paper:fadah, chunky"
       
     ports:
       # Porta padrão para computadores (Minecraft Java - TCP)
